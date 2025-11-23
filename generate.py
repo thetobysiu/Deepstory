@@ -1,12 +1,14 @@
 # SIU KING WAI SM4701 Deepstory
+import torch
 from transformers import GPT2Tokenizer, GPT2LMHeadModel
 
 
 class Generator:
     def __init__(self, model_name):
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model_name = model_name
         self.tokenizer = GPT2Tokenizer.from_pretrained(f'data/gpt2/{model_name}')
-        self.model = GPT2LMHeadModel.from_pretrained(f'data/gpt2/{model_name}').to('cuda')
+        self.model = GPT2LMHeadModel.from_pretrained(f'data/gpt2/{model_name}').to(self.device)
         with open(f'data/gpt2/{model_name}/default.txt', 'r') as f:
             text = f.read()
         if text[-1] == '\n':
@@ -17,7 +19,7 @@ class Generator:
 
         if text:
             # encode input context to gpt2 tokens
-            input_ids = self.tokenizer.encode(text, return_tensors='pt').to('cuda')
+            input_ids = self.tokenizer.encode(text, return_tensors='pt').to(self.device)
             # gpt2 model can only infer to maximum of 1024 tokens
             if len(input_ids[0]) + predict_length > 1024:
                 # take the nearest (1024 - predict_length) tokens from the end while reserving space to generate.

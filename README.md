@@ -11,8 +11,12 @@ It provides a comfortable web interface and backend written with flask to create
 
 It supports transformers model, and pytorch-dctts models
 
-## Live Demo
-Colab (flask-ngrok): https://colab.research.google.com/drive/1HYCPUmFw5rN8kvZdwzFpfBlaUMWPNHas?usp=sharing
+## Live Demo (Finally Updated)
+Now you can experience the ancient technology from 5 years ago! Actually kind of amazing how GPT is capable of nowadays.
+
+I will update it with more modern models.
+
+Colab (flask-ngrok): https://drive.google.com/file/d/1zIEjoldXXkzhZjkPY3WhB3mlIMnVwm4J/view?usp=sharing
 
 Video (In case you need instructions): https://blog.thetobysiu.com/video/
 

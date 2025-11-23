@@ -26,7 +26,7 @@ class ImageAnimator:
 
     def load(self):
         with open(self.config_path) as f:
-            config = yaml.load(f)
+            config = yaml.safe_load(f)
 
         self.generator = OcclusionAwareGenerator(**config['model_params']['generator_params'],
                                                  **config['model_params']['common_params']).to(device)
@@ -34,7 +34,7 @@ class ImageAnimator:
         self.kp_detector = KPDetector(**config['model_params']['kp_detector_params'],
                                       **config['model_params']['common_params']).to(device)
 
-        checkpoint = torch.load(self.checkpoint_path)
+        checkpoint = torch.load(self.checkpoint_path, map_location=device, weights_only=False)
 
         self.generator.load_state_dict(checkpoint['generator'])
         self.kp_detector.load_state_dict(checkpoint['kp_detector'])
@@ -59,14 +59,14 @@ class ImageAnimator:
             # adapted from original to optimize memory load in gpu instead of cpu
             source_image = imageio.imread(source_image)
             # normalize color to float 0-1
-            source = torch.from_numpy(source_image[np.newaxis].astype(np.float32)).to('cuda') / 255
+            source = torch.from_numpy(source_image[np.newaxis].astype(np.float32)).to(device) / 255
             del source_image
             source = source.permute(0, 3, 1, 2)
             # resize
             source = F.interpolate(source, size=(256, 256), mode='area')
 
             # modified to fit speech driven animation
-            driving = torch.from_numpy(driving_video).to('cuda') / 255
+            driving = torch.from_numpy(driving_video).to(device) / 255
             del driving_video
             driving = F.interpolate(driving, scale_factor=2, mode='bilinear', align_corners=False)
             # pad the left and right side of the scaled 128x96->256x192 to fit 256x256
@@ -87,4 +87,6 @@ class ImageAnimator:
                 out['prediction'] = out['prediction'].byte()
                 # predictions.append(out['prediction'][0].cpu().numpy())
                 predictions.append(out['prediction'].permute(0, 2, 3, 1)[0].cpu().numpy())
-        imageio.mimsave(output_path, predictions, fps=25)
+        with imageio.get_writer(output_path, format='FFMPEG', fps=25) as writer:
+            for frame in predictions:
+                writer.append_data(frame)

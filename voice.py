@@ -25,9 +25,9 @@ class Voice:
 
     def load(self):
         self.text2mel = Text2Mel(hp.vocab).to(device).eval()
-        self.text2mel.load_state_dict(torch.load(glob.glob(f'data/dctts/{self.speaker}/t2m*.pth')[0])['state_dict'])
+        self.text2mel.load_state_dict(torch.load(glob.glob(f'data/dctts/{self.speaker}/t2m*.pth')[0], map_location=device, weights_only=False)['state_dict'])
         self.ssrn = SSRN().to(device).eval()
-        self.ssrn.load_state_dict(torch.load(f'data/dctts/{self.speaker}/ssrn.pth')['state_dict'])
+        self.ssrn.load_state_dict(torch.load(f'data/dctts/{self.speaker}/ssrn.pth', map_location=device, weights_only=False)['state_dict'])
 
     def close(self):
         del self.text2mel
@@ -54,5 +54,5 @@ class Voice:
             Z = Z.cpu().detach().numpy()
 
         wav = spectrogram2wav(Z[0, :, :].T)
-        wav = normalize_audio(wav)
+        # wav = normalize_audio(wav)
         return wav

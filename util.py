@@ -10,6 +10,9 @@ from modules.dctts import hp
 from pydub import AudioSegment, effects
 
 
+from spacy.language import Language
+
+@Language.component("quote_boundaries")
 def quote_boundaries(doc):
     for token in doc[:-1]:
         # if token.text == "“" or token.text == "”":
@@ -20,13 +23,13 @@ def quote_boundaries(doc):
 
 
 nlp = spacy.load('en_core_web_sm')
-nlp.add_pipe(quote_boundaries, before="parser")
+nlp.add_pipe("quote_boundaries", before="parser")
 nlp_no_comma = copy.deepcopy(nlp)
-sentencizer = nlp.create_pipe("sentencizer")
+nlp.add_pipe("sentencizer", first=True)
+sentencizer = nlp.get_pipe("sentencizer")
 sentencizer.punct_chars.add(',')
-sentencizer_no_comma = nlp_no_comma.create_pipe("sentencizer")
-nlp.add_pipe(sentencizer, first=True)
-nlp_no_comma.add_pipe(sentencizer_no_comma, first=True)
+nlp_no_comma.add_pipe("sentencizer", first=True)
+
 
 
 def normalize_text(text):

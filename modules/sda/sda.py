@@ -53,10 +53,10 @@ def get_audio_feature_extractor(model_path="grid", gpu=-1):
 
     if gpu < 0:
         device = torch.device("cpu")
-        model_dict = torch.load(model_path, map_location=lambda storage, loc: storage)
+        model_dict = torch.load(model_path, map_location=lambda storage, loc: storage, weights_only=False)
     else:
         device = torch.device("cuda:" + str(gpu))
-        model_dict = torch.load(model_path, map_location=lambda storage, loc: storage.cuda(gpu))
+        model_dict = torch.load(model_path, map_location=lambda storage, loc: storage.cuda(gpu), weights_only=False)
 
     audio_rate = model_dict["audio_rate"]
     audio_feat_len = model_dict['audio_feat_len']
@@ -95,12 +95,12 @@ class VideoAnimator:
     def __init__(self, model_path='data/sda/grid.dat', gpu=-1):
         if gpu < 0:
             self.device = torch.device("cpu")
-            model_dict = torch.load(model_path, map_location=lambda storage, loc: storage)
-            self.fa = face_alignment.FaceAlignment(face_alignment.LandmarksType._2D, device="cpu", flip_input=False)
+            model_dict = torch.load(model_path, map_location=lambda storage, loc: storage, weights_only=False)
+            self.fa = face_alignment.FaceAlignment(face_alignment.LandmarksType.TWO_D, device="cpu", flip_input=False)
         else:
             self.device = torch.device("cuda:" + str(gpu))
-            model_dict = torch.load(model_path, map_location=lambda storage, loc: storage.cuda(gpu))
-            self.fa = face_alignment.FaceAlignment(face_alignment.LandmarksType._2D, device="cuda:" + str(gpu),
+            model_dict = torch.load(model_path, map_location=lambda storage, loc: storage.cuda(gpu), weights_only=False)
+            self.fa = face_alignment.FaceAlignment(face_alignment.LandmarksType.TWO_D, device="cuda:" + str(gpu),
                                                    flip_input=False)
 
         self.stablePntsIDs = [33, 36, 39, 42, 45]

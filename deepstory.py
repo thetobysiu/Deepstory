@@ -46,7 +46,7 @@ class Deepstory:
         self.generated_sentences = []
 
     def load_text(self, model_name, lines_no):
-        with open(f'data/gpt2/{model_name}/text.txt', 'r') as f:
+        with open(f'data/gpt2/{model_name}/text.txt', 'r', encoding='utf-8') as f:
             lines = f.readlines()
         start_index = random.randint(0, len(lines) - 1 - lines_no)
         text = ''.join(lines[start_index:start_index+lines_no])
@@ -244,7 +244,7 @@ class Deepstory:
                 })
 
         for i, wav_dict in enumerate(wavs_dicts):
-            scipy.io.wavfile.write(f'temp/audio/{i:03d}|{wav_dict["speaker"]}.wav', hp.sr, wav_dict['wav'])
+            scipy.io.wavfile.write(f'temp/audio/{i:03d}__{wav_dict["speaker"]}.wav', hp.sr, wav_dict['wav'])
 
         scipy.io.wavfile.write('export/combined.wav', hp.sr,
                                np.concatenate([wavs_dict['wav'] for wavs_dict in wavs_dicts], axis=None))
@@ -270,10 +270,11 @@ class Deepstory:
         else:
             os.mkdir(f'temp/base')
 
-        va = sda.VideoAnimator(gpu=0)  # Instantiate the animator
+        gpu = 0 if torch.cuda.is_available() else -1
+        va = sda.VideoAnimator(gpu=gpu)  # Instantiate the animator
         for audio_path in sorted(
                 glob.glob('temp/audio/*.wav'),
-                key=lambda x: int(os.path.splitext(os.path.basename(x))[0].split("|")[0])
+                key=lambda x: int(os.path.splitext(os.path.basename(x))[0].split("__")[0])
         ):
             np.save(
                 f'temp/base/{os.path.splitext(os.path.basename(audio_path))[0]}.npy',
@@ -292,7 +293,7 @@ class Deepstory:
     @staticmethod
     def get_base_speakers():
         return set(
-            os.path.splitext(os.path.basename(base_path))[0].split("|")[1]
+            os.path.splitext(os.path.basename(base_path))[0].split("__")[1]
             for base_path in glob.glob('temp/base/*.npy')
         )
 
@@ -307,8 +308,8 @@ class Deepstory:
         with ImageAnimator() as animator:
             for i, base_path in enumerate(sorted(
                     glob.glob('temp/base/*.npy'),
-                    key=lambda x: int(os.path.splitext(os.path.basename(x))[0].split("|")[0]))):
-                speaker = os.path.splitext(os.path.basename(base_path))[0].split("|")[1]
+                    key=lambda x: int(os.path.splitext(os.path.basename(x))[0].split("__")[0]))):
+                speaker = os.path.splitext(os.path.basename(base_path))[0].split("__")[1]
                 animator.animate_image(
                     f'data/images/{image_dict[speaker]}',
                     np.load(base_path),
