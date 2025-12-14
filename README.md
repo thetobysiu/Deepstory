@@ -11,6 +11,14 @@ It provides a comfortable web interface and backend written with flask to create
 
 It supports transformers model, and pytorch-dctts models
 
+
+### HTTPS Note
+
+The Flask web interface in this project is intended primarily for local use. If the application is exposed publicly, HTTPS is recommended to avoid transmitting data in plaintext.
+
+For small-scale or experimental deployments, a reverse proxy such as ngrok or a standard web server (for example, Nginx with TLS) can be used to provide HTTPS without modifying the application code.
+
+
 ## Live Demo (Finally Updated)
 Now you can experience the ancient technology from 5 years ago! Actually kind of amazing how GPT is capable of nowadays.
 
